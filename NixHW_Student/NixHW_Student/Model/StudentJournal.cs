@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,8 +12,8 @@ namespace NixHW_Student.Model
         private static uint _currentStudentId;
         private static uint _currentMarkId;
 
-        private static List<Student> _students;
-        private static List<Mark> _marks;
+        private static readonly List<Student> _students;
+        private static readonly List<Mark> _marks;
 
         static StudentJournal()
         {
@@ -25,82 +24,59 @@ namespace NixHW_Student.Model
             _currentMarkId = (uint) _marks.Count;
         }
 
-        public static void AddStudent(Student student)
+        public static void AddStudent(Student newStudent)
         {
-            student.Id = ++_currentStudentId;
-            _students.Add(student);
+	        if (_students.Contains(newStudent))
+		        throw new Exception("This student already exists.");
+
+	        newStudent.Id = ++_currentStudentId;
+            _students.Add(newStudent);
         }
 
         public static void AddMark(Mark mark)
         {
-            if (!_students.Exists(stud => stud.Id == mark.StudentId))
+            if (!_students.Exists(student => student.Id == mark.StudentId))
                 throw new Exception("There is no student with such id.");
 
             mark.Id = ++_currentMarkId;
             _marks.Add(mark);
         }
 
-        private static double GetStudentAvgMark(Student student)
+        public static double GetStudentAvgMark(Student student)
         {
-            double markSum = 0;
-            double markCount = -1;
+	        if (!_students.Exists(stud => stud.Id == student.Id))
+		        throw new Exception("There is no student with such id.");
 
             var query = _students.Join(_marks, stud => student.Id, mark => mark.StudentId, (stud, mark) => mark);
-            markSum = (double)query.Sum(mark => mark.MarkValue);
-            markCount = (double)query.Count();
-
-            return markSum / markCount;
+            if (query.Any())
+                return query.Average(mark => mark.MarkValue);
+            throw new Exception("This student doesn't have any mark.");
         }
 
         public static double GetAvgMark()
         {
-            double markSum = 0;
-            double markCount = -1;
-
-            markSum = (double)_marks.Sum(mk => mk.MarkValue);
-            markCount = (double)_marks.Count();
-
-            return markSum / markCount;
+			if (_marks.Count > 0)
+				return (double)_marks.Average(mk => mk.MarkValue);
+			throw new Exception("There is no mark in journal.");
         }
-        
-        private static List<JournalCell> GetBadStudents()
+
+        public static List<Student> GetStudents()
         {
-            var query = (from student in _students
-                                        join mark in _marks on student.Id equals mark.StudentId
-                                        where mark.MarkValue < 60
-                                        select new JournalCell(student, mark)).ToList();
-
-            //var query = (from student in _students
-            //    join mark in _marks
-            //        on student.Id equals mark.StudentId
-            //    where mark.MarkValue < 60
-            //    select new JournalCell(student, mark)).Distinct().ToList();
-
-            return query;
+	        return _students;
         }
 
-        public static void PrintBadStudents()
+        public static List<Mark> GetMarks()
         {
-            var badList = GetBadStudents();
-            Console.WriteLine("Bad students:");
-            foreach (var cell in badList)
-            {
-                Console.WriteLine($"Student: {cell.Student.GetFullName()}, Subject: {cell.Mark.Subject}, Mark: {cell.Mark.MarkValue}.");
-            }
+	        return _marks;
         }
 
-        public static void PrintJournal()
+        public static IEnumerable<JournalCell> GetBadStudents()
         {
-            if (_students.Count == 0)
-            {
-                Console.WriteLine("There is no records in journal");
-                return;
-            }
-            foreach (var student in _students)
-            {
-                Console.WriteLine($"Student: {student.GetFullName()}, Average mark: {GetStudentAvgMark(student)}");
-            }
-        }
+	        IEnumerable<JournalCell> query = _students
+		        .Join(_marks, student => student.Id, mark => mark.StudentId, (student, mark) => new JournalCell(student, mark))
+		        .Where(cell => cell.Mark.MarkValue < 60);
 
+	        return query;
+        }
     }
 }

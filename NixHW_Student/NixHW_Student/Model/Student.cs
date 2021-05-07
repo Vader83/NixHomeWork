@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NixHW_Student.Model
 {
-    class Student
+    class Student : IEquatable<Student>
     {
         private string _firstName;
         private string _lastName;
@@ -21,6 +21,7 @@ namespace NixHW_Student.Model
                 ? throw new Exception("Student name couldn't be empty.") 
                 : value;
         }
+
 
         public string LastName
         {
@@ -38,13 +39,7 @@ namespace NixHW_Student.Model
                 : value;
         }
 
-        //public Student()
-        //{
-        //    this.Id = 0;
-        //    this.FirstName = "Unknown";
-        //    this.LastName = "Unknown";
-        //    this.Group = "Unknown";
-        //}
+        public Student(){}
 
         public Student(string firstName, string lastName, string group)
         {
@@ -56,6 +51,33 @@ namespace NixHW_Student.Model
         public string GetFullName()
         {
             return LastName + " " + FirstName;
+        }
+
+        public override bool Equals(object obj)
+        {
+	        if (ReferenceEquals(null, obj)) return false;
+	        if (ReferenceEquals(this, obj)) return true;
+	        if (obj.GetType() != this.GetType()) return false;
+	        return Equals((Student) obj);
+        }
+
+        public bool Equals(Student other)
+        {
+	        if (ReferenceEquals(null, other)) return false;
+	        if (ReferenceEquals(this, other)) return true;
+	        return _firstName == other._firstName && _lastName == other._lastName && _group == other._group;
+        }
+
+        public override int GetHashCode()
+        {
+	        unchecked
+	        {
+		        var hashCode = (_firstName != null ? _firstName.GetHashCode() : 0);
+		        hashCode = (hashCode * 397) ^ (_lastName != null ? _lastName.GetHashCode() : 0);
+		        hashCode = (hashCode * 397) ^ (_group != null ? _group.GetHashCode() : 0);
+		        hashCode = (hashCode * 397) ^ (int) Id;
+		        return hashCode;
+	        }
         }
     }
 }

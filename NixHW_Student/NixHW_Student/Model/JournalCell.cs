@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NixHW_Student.Model
 {
-    class JournalCell: IEquatable<JournalCell>
+    class JournalCell
     {
         public Student Student { get; set; }
         public Mark Mark { get; set; }
@@ -17,24 +17,24 @@ namespace NixHW_Student.Model
             this.Mark = mark;
         }
 
-        public bool Equals(JournalCell other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Equals(Student, other.Student);
-        }
+        //public bool Equals(JournalCell other)
+        //{
+        //    if (ReferenceEquals(null, other)) return false;
+        //    if (ReferenceEquals(this, other)) return true;
+        //    return Equals(Student, other.Student);
+        //}
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((JournalCell) obj);
-        }
+        //public override bool Equals(object obj)
+        //{
+        //    if (ReferenceEquals(null, obj)) return false;
+        //    if (ReferenceEquals(this, obj)) return true;
+        //    if (obj.GetType() != this.GetType()) return false;
+        //    return Equals((JournalCell) obj);
+        //}
 
-        public override int GetHashCode()
-        {
-            return (this.Student != null ? this.Student.GetHashCode() : 0);
-        }
+        //public override int GetHashCode()
+        //{
+        //    return (this.Student != null ? this.Student.GetHashCode() : 0);
+        //}
     }
 }
